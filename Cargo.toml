@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "compiler/bfc_span"
+    "compiler/bfc_span",
+    "compiler/front/bfc_lexer"
 ]
 
 [package]
