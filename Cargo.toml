@@ -1,3 +1,8 @@
+[workspace]
+members = [
+    "compiler/bfc_span"
+]
+
 [package]
 name = "blastfurnace"
 version = "0.1.0"
