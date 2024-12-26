@@ -1,5 +1,5 @@
-use bfc_span::span::Span;
 use crate::error::TokenError;
+use bfc_span::span::Span;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
