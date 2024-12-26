@@ -1,13 +1,5 @@
-use bfc_span::span::Span;
-
-#[derive(Debug, PartialEq)]
-pub enum ErrorType {
+#[derive(Debug, Clone, PartialEq)]
+pub enum TokenError {
     InvalidToken,
     UnclosedString,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Error {
-    pub error_type: ErrorType,
-    pub span: Span,
 }
