@@ -17,6 +17,16 @@ impl<'s> Lexer<'s> {
         }
     }
 
+    fn get_eof_token(&self) -> Token {
+        Token {
+            token_type: TokenType::Eof,
+            span: Span {
+                lo: BytePos(self.end as u32),
+                hi: BytePos(self.end as u32),
+            },
+        }
+    }
+
     fn try_read_string(&mut self) -> Option<TokenType> {
         if self.chars.next_if(|(_, c)| *c == '"').is_some() {
             let mut build = String::new();
@@ -236,7 +246,7 @@ impl<'s> Lexer<'s> {
         None
     }
 
-    pub fn read_token(&mut self) -> Option<Token> {
+    pub fn read_token(&mut self) -> Token {
         // skip whitespace and comments
         while let Some((_, c)) = self.chars.peek() {
             if c.is_whitespace() {
@@ -247,8 +257,9 @@ impl<'s> Lexer<'s> {
             }
         }
 
-        if let Some((idx, _)) = self.chars.peek() {
+        if let Some((idx, ch)) = self.chars.peek() {
             let lo = *idx;
+            let ch = *ch;
 
             let token_type = if let Some(string_literal) = self.try_read_string() {
                 string_literal
@@ -259,7 +270,7 @@ impl<'s> Lexer<'s> {
             } else if let Some(symbol) = self.try_read_symbol() {
                 symbol
             } else {
-                return None;
+                TokenType::Unknown(TokenError::UnknownCharacter(ch))
             };
 
             // create span
@@ -274,9 +285,9 @@ impl<'s> Lexer<'s> {
                 hi: BytePos(hi as u32),
             };
 
-            Some(Token { token_type, span })
+            Token { token_type, span }
         } else {
-            None // No more tokens
+            self.get_eof_token()
         }
     }
 }
@@ -284,7 +295,7 @@ impl Iterator for Lexer<'_> {
     type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.read_token()
+        Some(self.read_token())
     }
 }
 
