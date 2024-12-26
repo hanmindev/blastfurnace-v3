@@ -1,4 +1,4 @@
-use crate::error::{Error, ErrorType};
+use crate::error::TokenError;
 use crate::token::{Token, TokenType};
 use bfc_span::span::{BytePos, Span};
 use std::iter::Peekable;
@@ -17,7 +17,7 @@ impl<'s> Lexer<'s> {
         }
     }
 
-    fn try_read_string(&mut self) -> Option<Result<TokenType, ErrorType>> {
+    fn try_read_string(&mut self) -> Option<TokenType> {
         if self.chars.next_if(|(_, c)| *c == '"').is_some() {
             let mut build = String::new();
 
@@ -26,13 +26,13 @@ impl<'s> Lexer<'s> {
                     // TODO: escaping
                     // TODO: multi-line string
                     '"' => {
-                        return Some(Ok(TokenType::String(build)));
+                        return Some(TokenType::String(build));
                     }
                     _ => build.push(c),
                 }
             }
 
-            Some(Err(ErrorType::UnclosedString))
+            Some(TokenType::Unknown(TokenError::UnclosedString))
         } else {
             None
         }
@@ -99,7 +99,7 @@ impl<'s> Lexer<'s> {
         })
     }
 
-    fn try_read_number(&mut self, negate: bool) -> Option<Result<TokenType, ErrorType>> {
+    fn try_read_number(&mut self, negate: bool) -> Option<TokenType> {
         Some(if let Some((_, c)) = self.chars.peek() {
             if !c.is_ascii_digit() {
                 return None;
@@ -125,13 +125,13 @@ impl<'s> Lexer<'s> {
                             n = -n;
                         }
 
-                        Ok(if self.chars.next_if(|(_, c)| *c == 'd').is_some() {
+                        if self.chars.next_if(|(_, c)| *c == 'd').is_some() {
                             TokenType::Double(n)
                         } else {
                             TokenType::Float(n as f32)
-                        })
+                        }
                     }
-                    Err(_) => Err(ErrorType::InvalidToken),
+                    Err(_) => TokenType::Unknown(TokenError::InvalidToken),
                 }
             } else {
                 match number.parse::<i64>() {
@@ -139,13 +139,13 @@ impl<'s> Lexer<'s> {
                         if negate {
                             n = -n;
                         }
-                        Ok(if self.chars.next_if(|(_, c)| *c == 'l').is_some() {
+                        if self.chars.next_if(|(_, c)| *c == 'l').is_some() {
                             TokenType::Long(n)
                         } else {
                             TokenType::Int(n as i32)
-                        })
+                        }
                     }
-                    Err(_) => Err(ErrorType::InvalidToken),
+                    Err(_) => TokenType::Unknown(TokenError::InvalidToken),
                 }
             }
         } else {
@@ -213,14 +213,14 @@ impl<'s> Lexer<'s> {
         })
     }
 
-    fn try_read_symbol(&mut self) -> Option<Result<TokenType, ErrorType>> {
+    fn try_read_symbol(&mut self) -> Option<TokenType> {
         if let Some(first) = self.peek_character_token() {
             self.chars.next();
 
             if let Some(second) = self.peek_character_token() {
                 if let Some(merged) = self.match_character_tokens(&first, &second) {
                     self.chars.next();
-                    return Some(Ok(merged));
+                    return Some(merged);
                 }
             }
 
@@ -230,13 +230,13 @@ impl<'s> Lexer<'s> {
                 }
             }
 
-            return Some(Ok(first));
+            return Some(first);
         }
 
         None
     }
 
-    pub fn read_token(&mut self) -> Option<Result<Token, Error>> {
+    pub fn read_token(&mut self) -> Option<Token> {
         // skip whitespace and comments
         while let Some((_, c)) = self.chars.peek() {
             if c.is_whitespace() {
@@ -250,10 +250,10 @@ impl<'s> Lexer<'s> {
         if let Some((idx, _)) = self.chars.peek() {
             let lo = *idx;
 
-            let token_type_result = if let Some(string_literal) = self.try_read_string() {
+            let token_type = if let Some(string_literal) = self.try_read_string() {
                 string_literal
             } else if let Some(keyword) = self.try_read_keyword() {
-                Ok(keyword)
+                keyword
             } else if let Some(number) = self.try_read_number(false) {
                 number
             } else if let Some(symbol) = self.try_read_symbol() {
@@ -274,20 +274,14 @@ impl<'s> Lexer<'s> {
                 hi: BytePos(hi as u32),
             };
 
-            Some(match token_type_result {
-                Ok(token_type) => Ok(Token { token_type, span }),
-                Err(err) => Err(Error {
-                    error_type: err,
-                    span,
-                }),
-            })
+            Some(Token { token_type, span })
         } else {
             None // No more tokens
         }
     }
 }
 impl Iterator for Lexer<'_> {
-    type Item = Result<Token, Error>;
+    type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.read_token()
@@ -300,7 +294,7 @@ mod tests {
 
     macro_rules! test_token_stream {
         ($lexer: ident, $($token: expr), *) => {
-            let mut next = || $lexer.next().unwrap().unwrap();
+            let mut next = || $lexer.next().unwrap();
 
             $(
                 assert_eq!($token, next().token_type);
@@ -329,12 +323,8 @@ mod tests {
             TokenType::Float(1234.0),
             TokenType::Double(-1234.0),
             TokenType::Double(0.0),
-            TokenType::Double(1234.0)
-        );
-
-        assert_eq!(
-            TokenType::String("hello world".to_string()),
-            lexer.next().unwrap().unwrap().token_type
+            TokenType::Double(1234.0),
+            TokenType::String("hello world".to_string())
         );
     }
 
@@ -342,10 +332,7 @@ mod tests {
     fn test_unclosed_string() {
         let mut lexer = Lexer::new("\"hello world");
 
-        assert_eq!(
-            ErrorType::UnclosedString,
-            lexer.next().unwrap().unwrap_err().error_type
-        )
+        test_token_stream!(lexer, TokenType::Unknown(TokenError::UnclosedString));
     }
 
     #[test]

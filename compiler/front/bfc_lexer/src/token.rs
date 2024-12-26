@@ -1,4 +1,6 @@
 use bfc_span::span::Span;
+use crate::error::TokenError;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     Ident(String), // ident
@@ -92,6 +94,7 @@ pub enum TokenType {
 
     // Misc
     Eof,
+    Unknown(TokenError),
 }
 
 #[derive(Debug)]
