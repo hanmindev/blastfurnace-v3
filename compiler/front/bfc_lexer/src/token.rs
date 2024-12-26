@@ -1,10 +1,24 @@
 use crate::error::TokenError;
 use bfc_span::span::Span;
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum TokenType {
-    Ident(String), // ident
+macro_rules! token_macro {
+    ($($variant:ident $(($internal:ty))?),*) => {
+        #[derive(Debug, Clone, PartialEq)]
+        pub enum TokenType {
+            $(
+            $variant$(($internal))?
+            ),*
+        }
 
+        #[derive(Debug, Clone, PartialEq)]
+        pub enum TokenKind {
+            $($variant),*
+        }
+    };
+}
+
+token_macro!(
+    Ident(String), // ident
     // Literals
     Null,           // null
     Bool(bool),     // true / false
@@ -13,7 +27,6 @@ pub enum TokenType {
     Float(f32),     // -1.0, 0.0, 1.0, etc
     Double(f64),    // -1.0d, 0.0d, 1.0d, etc
     String(String), // "hello"
-
     // Operators
     Plus,        // +
     Minus,       // -
@@ -27,13 +40,11 @@ pub enum TokenType {
     Or,          // ||
     PlusPlus,    // ++
     MinusMinus,  // --
-
     // Comparison
     Equal,    // ==
     NotEqual, // !=
     Leq,      // <=
     Geq,      // >=
-
     // Assignment
     Assign,        // =
     PlusAssign,    // +=
@@ -41,27 +52,23 @@ pub enum TokenType {
     StarAssign,    // *=
     SlashAssign,   // /=
     PercentAssign, // %=
-
     // Other Symbols
-    Comma,     // ,
-    Semicolon, // ;
-    Colon,     // :
-    Dot,       // .
-    LParen,    // (
-    RParen,    // )
-    LBrace,    // {
-    RBrace,    // }
-    LBracket,  // [
-    RBracket,  // ]
-    LAngle,    // <
-    RAngle,    // >
-
+    Comma,       // ,
+    Semicolon,   // ;
+    Colon,       // :
+    Dot,         // .
+    LParen,      // (
+    RParen,      // )
+    LBrace,      // {
+    RBrace,      // }
+    LBracket,    // [
+    RBracket,    // ]
+    LAngle,      // <
+    RAngle,      // >
     Arrow,       // ->
     DoubleColon, // ::
-
     // Keywords
-    Const, // const
-
+    Const,      // const
     VoidType,   // void
     IntType,    // i32
     FloatType,  // f32
@@ -69,33 +76,26 @@ pub enum TokenType {
     BoolType,   // bool
     StringType, // str
     StructType, // struct
-
-    Impl, // impl
-
-    Let, // let
-
-    Fn,     // fn
-    Rec,    // rec
-    Inline, // inline
-
-    If,    // if
-    Else,  // else
-    While, // while
-    For,   // for
-
-    Return,   // return
-    Break,    // break
-    Continue, // continue
-
-    Use, // use
-    As,  // as
-    Mod, // mod
-    Pub, // pub
-
+    Impl,       // impl
+    Let,        // let
+    Fn,         // fn
+    Rec,        // rec
+    Inline,     // inline
+    If,         // if
+    Else,       // else
+    While,      // while
+    For,        // for
+    Return,     // return
+    Break,      // break
+    Continue,   // continue
+    Use,        // use
+    As,         // as
+    Mod,        // mod
+    Pub,        // pub
     // Misc
     Eof,
-    Unknown(TokenError),
-}
+    Unknown(TokenError)
+);
 
 #[derive(Debug)]
 pub struct Token {
