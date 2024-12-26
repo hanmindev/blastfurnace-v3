@@ -205,6 +205,7 @@ impl<'s> Lexer<'s> {
             (TokenType::Minus, TokenType::Minus) => TokenType::MinusMinus,  // --
 
             (TokenType::Minus, TokenType::RAngle) => TokenType::Arrow, // ->
+            (TokenType::Colon, TokenType::Colon) => TokenType::DoubleColon, // ::
 
             _ => {
                 return None;
@@ -379,7 +380,7 @@ mod tests {
 
     #[test]
     fn test_merged() {
-        let mut lexer = Lexer::new("&& || ++ -- == != <= >= += -= *= /= %=");
+        let mut lexer = Lexer::new("&& || ++ -- == != <= >= += -= *= /= %= -> ::");
 
         test_token_stream!(
             lexer,
@@ -395,7 +396,9 @@ mod tests {
             TokenType::MinusAssign,
             TokenType::StarAssign,
             TokenType::SlashAssign,
-            TokenType::PercentAssign
+            TokenType::PercentAssign,
+            TokenType::Arrow,
+            TokenType::DoubleColon
         );
     }
 

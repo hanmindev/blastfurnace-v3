@@ -54,7 +54,8 @@ pub enum TokenType {
     LAngle,    // <
     RAngle,    // >
 
-    Arrow, // ->
+    Arrow,       // ->
+    DoubleColon, // ::
 
     // Keywords
     Const, // const
