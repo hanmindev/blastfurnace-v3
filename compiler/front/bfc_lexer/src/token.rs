@@ -129,10 +129,7 @@ mod test {
             &TokenType::Ident("hello".to_string()),
             TokenKind::Ident
         ));
-        assert!(is_same(
-            &TokenType::Int(1234),
-            TokenKind::Int
-        ));
+        assert!(is_same(&TokenType::Int(1234), TokenKind::Int));
         assert!(is_same(
             &TokenType::String("hello".to_string()),
             TokenKind::String
