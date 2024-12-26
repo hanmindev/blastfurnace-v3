@@ -4,13 +4,13 @@ use bfc_span::span::{BytePos, Span};
 use std::iter::Peekable;
 use std::str::CharIndices;
 
-struct Lexer<'s> {
+pub struct Lexer<'s> {
     chars: Peekable<CharIndices<'s>>,
     end: usize,
 }
 
 impl<'s> Lexer<'s> {
-    fn new(input: &'s str) -> Lexer {
+    pub fn new(input: &'s str) -> Lexer {
         Lexer {
             chars: input.char_indices().peekable(),
             end: input.len(),
