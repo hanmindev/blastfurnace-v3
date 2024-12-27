@@ -36,7 +36,7 @@ impl<'s> Lexer<'s> {
                     // TODO: escaping
                     // TODO: multi-line string
                     '"' => {
-                        return Some(TokenType::String(build));
+                        return Some(TokenType::LitStr(build));
                     }
                     _ => build.push(c),
                 }
@@ -67,9 +67,9 @@ impl<'s> Lexer<'s> {
                 }
 
                 match token_str.as_str() {
-                    "null" => TokenType::Null,
-                    "true" => TokenType::Bool(true),
-                    "false" => TokenType::Bool(false),
+                    "null" => TokenType::LitNull,
+                    "true" => TokenType::LitBool(true),
+                    "false" => TokenType::LitBool(false),
 
                     "fn" => TokenType::KwFn,
                     "rec" => TokenType::KwRec,
@@ -137,9 +137,9 @@ impl<'s> Lexer<'s> {
                         }
 
                         if self.chars.next_if(|(_, c)| *c == 'd').is_some() {
-                            TokenType::Double(n)
+                            TokenType::LitF64(n)
                         } else {
-                            TokenType::Float(n as f32)
+                            TokenType::LitF32(n as f32)
                         }
                     }
                     Err(_) => TokenType::Unknown(TokenError::InvalidToken),
@@ -151,9 +151,9 @@ impl<'s> Lexer<'s> {
                             n = -n;
                         }
                         if self.chars.next_if(|(_, c)| *c == 'l').is_some() {
-                            TokenType::Long(n)
+                            TokenType::LitI64(n)
                         } else {
-                            TokenType::Int(n as i32)
+                            TokenType::LitI32(n as i32)
                         }
                     }
                     Err(_) => TokenType::Unknown(TokenError::InvalidToken),
@@ -321,22 +321,22 @@ mod tests {
         );
         test_token_stream!(
             lexer,
-            TokenType::Null,
-            TokenType::Bool(true),
-            TokenType::Bool(false),
-            TokenType::Int(-1234),
-            TokenType::Int(0),
-            TokenType::Int(1234),
-            TokenType::Long(-1234),
-            TokenType::Long(0),
-            TokenType::Long(1234),
-            TokenType::Float(-1234.0),
-            TokenType::Float(0.0),
-            TokenType::Float(1234.0),
-            TokenType::Double(-1234.0),
-            TokenType::Double(0.0),
-            TokenType::Double(1234.0),
-            TokenType::String("hello world".to_string())
+            TokenType::LitNull,
+            TokenType::LitBool(true),
+            TokenType::LitBool(false),
+            TokenType::LitI32(-1234),
+            TokenType::LitI32(0),
+            TokenType::LitI32(1234),
+            TokenType::LitI64(-1234),
+            TokenType::LitI64(0),
+            TokenType::LitI64(1234),
+            TokenType::LitF32(-1234.0),
+            TokenType::LitF32(0.0),
+            TokenType::LitF32(1234.0),
+            TokenType::LitF64(-1234.0),
+            TokenType::LitF64(0.0),
+            TokenType::LitF64(1234.0),
+            TokenType::LitStr("hello world".to_string())
         );
     }
 
