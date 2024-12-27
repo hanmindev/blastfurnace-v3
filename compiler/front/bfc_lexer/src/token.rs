@@ -78,31 +78,31 @@ token_macro!(
     Arrow,       // ->
     DoubleColon, // ::
     // Keywords
-    Const,      // const
-    VoidType,   // void
-    IntType,    // i32
-    LongType,   // i64
-    FloatType,  // f32
-    DoubleType, // f64
-    BoolType,   // bool
-    StringType, // str
-    StructType, // struct
-    Impl,       // impl
-    Let,        // let
-    Fn,         // fn
-    Rec,        // rec
-    Inline,     // inline
-    If,         // if
-    Else,       // else
-    While,      // while
-    For,        // for
-    Return,     // return
-    Break,      // break
-    Continue,   // continue
-    Use,        // use
-    As,         // as
-    Mod,        // mod
-    Pub,        // pub
+    KwConst,    // const
+    KwVoid,     // void
+    KwI32,      // i32
+    KwI64,      // i64
+    KwF32,      // f32
+    KwF64,      // f64
+    KwBool,     // bool
+    KwStr,      // str
+    KwStruct,   // struct
+    KwImpl,     // impl
+    KwLet,      // let
+    KwFn,       // fn
+    KwRec,      // rec
+    KwInline,   // inline
+    KwIf,       // if
+    KwElse,     // else
+    KwWhile,    // while
+    KwFor,      // for
+    KwReturn,   // return
+    KwBreak,    // break
+    KwContinue, // continue
+    KwUse,      // use
+    KwAs,       // as
+    KwMod,      // mod
+    KwPub,      // pub
     // Misc
     Eof,
     Unknown(TokenError)
@@ -121,7 +121,7 @@ mod test {
     #[test]
     fn test_simple_comparison() {
         assert!(is_same(&TokenType::Null, TokenKind::Null));
-        assert!(is_same(&TokenType::Fn, TokenKind::Fn));
+        assert!(is_same(&TokenType::KwFn, TokenKind::KwFn));
         assert!(is_same(&TokenType::Eof, TokenKind::Eof));
     }
     #[test]
