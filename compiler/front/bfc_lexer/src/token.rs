@@ -81,6 +81,7 @@ token_macro!(
     Const,      // const
     VoidType,   // void
     IntType,    // i32
+    LongType,   // i64
     FloatType,  // f32
     DoubleType, // f64
     BoolType,   // bool
