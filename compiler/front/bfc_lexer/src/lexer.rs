@@ -83,9 +83,9 @@ impl<'s> Lexer<'s> {
                     "continue" => TokenType::Continue,
 
                     "void" => TokenType::VoidType,
-                    "int" => TokenType::IntType,
-                    "float" => TokenType::FloatType,
-                    "double" => TokenType::DoubleType,
+                    "i32" => TokenType::IntType,
+                    "f32" => TokenType::FloatType,
+                    "f64" => TokenType::DoubleType,
                     "bool" => TokenType::BoolType,
                     "string" => TokenType::StringType,
                     "struct" => TokenType::StructType,
@@ -402,7 +402,7 @@ mod tests {
 
     #[test]
     fn test_keywords() {
-        let mut lexer = Lexer::new("fn rec if else while for return break continue void int float double bool string struct impl let const inline use as mod pub");
+        let mut lexer = Lexer::new("fn rec if else while for return break continue void i32 f32 f64 bool string struct impl let const inline use as mod pub");
 
         test_token_stream!(
             lexer,
