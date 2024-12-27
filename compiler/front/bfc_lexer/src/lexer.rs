@@ -432,4 +432,18 @@ mod tests {
             TokenType::Pub
         );
     }
+
+    #[test]
+    fn test_eof() {
+        let mut lexer = Lexer::new("fn");
+
+        test_token_stream!(
+            lexer,
+            TokenType::Fn,
+            TokenType::Eof,
+            TokenType::Eof,
+            TokenType::Eof,
+            TokenType::Eof
+        );
+    }
 }
