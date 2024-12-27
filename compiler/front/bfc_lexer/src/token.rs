@@ -30,13 +30,13 @@ macro_rules! token_macro {
 token_macro!(
     Ident(String), // ident
     // Literals
-    Null,           // null
-    Bool(bool),     // true / false
-    Int(i32),       // -1, 0, 1, etc
-    Long(i64),      // -1l, 0l, 1l, etc
-    Float(f32),     // -1.0, 0.0, 1.0, etc
-    Double(f64),    // -1.0d, 0.0d, 1.0d, etc
-    String(String), // "hello"
+    LitNull,        // null
+    LitBool(bool),  // true / false
+    LitI32(i32),    // -1, 0, 1, etc
+    LitI64(i64),    // -1l, 0l, 1l, etc
+    LitF32(f32),    // -1.0, 0.0, 1.0, etc
+    LitF64(f64),    // -1.0d, 0.0d, 1.0d, etc
+    LitStr(String), // "hello"
     // Operators
     Plus,        // +
     Minus,       // -
@@ -78,30 +78,31 @@ token_macro!(
     Arrow,       // ->
     DoubleColon, // ::
     // Keywords
-    Const,      // const
-    VoidType,   // void
-    IntType,    // i32
-    FloatType,  // f32
-    DoubleType, // f64
-    BoolType,   // bool
-    StringType, // str
-    StructType, // struct
-    Impl,       // impl
-    Let,        // let
-    Fn,         // fn
-    Rec,        // rec
-    Inline,     // inline
-    If,         // if
-    Else,       // else
-    While,      // while
-    For,        // for
-    Return,     // return
-    Break,      // break
-    Continue,   // continue
-    Use,        // use
-    As,         // as
-    Mod,        // mod
-    Pub,        // pub
+    KwConst,    // const
+    KwVoid,     // void
+    KwI32,      // i32
+    KwI64,      // i64
+    KwF32,      // f32
+    KwF64,      // f64
+    KwBool,     // bool
+    KwStr,      // str
+    KwStruct,   // struct
+    KwImpl,     // impl
+    KwLet,      // let
+    KwFn,       // fn
+    KwRec,      // rec
+    KwInline,   // inline
+    KwIf,       // if
+    KwElse,     // else
+    KwWhile,    // while
+    KwFor,      // for
+    KwReturn,   // return
+    KwBreak,    // break
+    KwContinue, // continue
+    KwUse,      // use
+    KwAs,       // as
+    KwMod,      // mod
+    KwPub,      // pub
     // Misc
     Eof,
     Unknown(TokenError)
@@ -119,8 +120,8 @@ mod test {
 
     #[test]
     fn test_simple_comparison() {
-        assert!(is_same(&TokenType::Null, TokenKind::Null));
-        assert!(is_same(&TokenType::Fn, TokenKind::Fn));
+        assert!(is_same(&TokenType::LitNull, TokenKind::LitNull));
+        assert!(is_same(&TokenType::KwFn, TokenKind::KwFn));
         assert!(is_same(&TokenType::Eof, TokenKind::Eof));
     }
     #[test]
@@ -129,10 +130,10 @@ mod test {
             &TokenType::Ident("hello".to_string()),
             TokenKind::Ident
         ));
-        assert!(is_same(&TokenType::Int(1234), TokenKind::Int));
+        assert!(is_same(&TokenType::LitI32(1234), TokenKind::LitI32));
         assert!(is_same(
-            &TokenType::String("hello".to_string()),
-            TokenKind::String
+            &TokenType::LitStr("hello".to_string()),
+            TokenKind::LitStr
         ));
     }
 }

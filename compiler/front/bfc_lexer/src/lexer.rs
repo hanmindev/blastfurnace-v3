@@ -36,7 +36,7 @@ impl<'s> Lexer<'s> {
                     // TODO: escaping
                     // TODO: multi-line string
                     '"' => {
-                        return Some(TokenType::String(build));
+                        return Some(TokenType::LitStr(build));
                     }
                     _ => build.push(c),
                 }
@@ -67,38 +67,39 @@ impl<'s> Lexer<'s> {
                 }
 
                 match token_str.as_str() {
-                    "null" => TokenType::Null,
-                    "true" => TokenType::Bool(true),
-                    "false" => TokenType::Bool(false),
+                    "null" => TokenType::LitNull,
+                    "true" => TokenType::LitBool(true),
+                    "false" => TokenType::LitBool(false),
 
-                    "fn" => TokenType::Fn,
-                    "rec" => TokenType::Rec,
+                    "fn" => TokenType::KwFn,
+                    "rec" => TokenType::KwRec,
 
-                    "if" => TokenType::If,
-                    "else" => TokenType::Else,
-                    "while" => TokenType::While,
-                    "for" => TokenType::For,
-                    "return" => TokenType::Return,
-                    "break" => TokenType::Break,
-                    "continue" => TokenType::Continue,
+                    "if" => TokenType::KwIf,
+                    "else" => TokenType::KwElse,
+                    "while" => TokenType::KwWhile,
+                    "for" => TokenType::KwFor,
+                    "return" => TokenType::KwReturn,
+                    "break" => TokenType::KwBreak,
+                    "continue" => TokenType::KwContinue,
 
-                    "void" => TokenType::VoidType,
-                    "int" => TokenType::IntType,
-                    "float" => TokenType::FloatType,
-                    "double" => TokenType::DoubleType,
-                    "bool" => TokenType::BoolType,
-                    "string" => TokenType::StringType,
-                    "struct" => TokenType::StructType,
+                    "void" => TokenType::KwVoid,
+                    "i32" => TokenType::KwI32,
+                    "i64" => TokenType::KwI64,
+                    "f32" => TokenType::KwF32,
+                    "f64" => TokenType::KwF64,
+                    "bool" => TokenType::KwBool,
+                    "string" => TokenType::KwStr,
+                    "struct" => TokenType::KwStruct,
 
-                    "impl" => TokenType::Impl,
-                    "let" => TokenType::Let,
-                    "const" => TokenType::Const,
-                    "inline" => TokenType::Inline,
+                    "impl" => TokenType::KwImpl,
+                    "let" => TokenType::KwLet,
+                    "const" => TokenType::KwConst,
+                    "inline" => TokenType::KwInline,
 
-                    "use" => TokenType::Use,
-                    "as" => TokenType::As,
-                    "mod" => TokenType::Mod,
-                    "pub" => TokenType::Pub,
+                    "use" => TokenType::KwUse,
+                    "as" => TokenType::KwAs,
+                    "mod" => TokenType::KwMod,
+                    "pub" => TokenType::KwPub,
                     _ => TokenType::Ident(token_str),
                 }
             } else {
@@ -136,9 +137,9 @@ impl<'s> Lexer<'s> {
                         }
 
                         if self.chars.next_if(|(_, c)| *c == 'd').is_some() {
-                            TokenType::Double(n)
+                            TokenType::LitF64(n)
                         } else {
-                            TokenType::Float(n as f32)
+                            TokenType::LitF32(n as f32)
                         }
                     }
                     Err(_) => TokenType::Unknown(TokenError::InvalidToken),
@@ -150,9 +151,9 @@ impl<'s> Lexer<'s> {
                             n = -n;
                         }
                         if self.chars.next_if(|(_, c)| *c == 'l').is_some() {
-                            TokenType::Long(n)
+                            TokenType::LitI64(n)
                         } else {
-                            TokenType::Int(n as i32)
+                            TokenType::LitI32(n as i32)
                         }
                     }
                     Err(_) => TokenType::Unknown(TokenError::InvalidToken),
@@ -320,22 +321,22 @@ mod tests {
         );
         test_token_stream!(
             lexer,
-            TokenType::Null,
-            TokenType::Bool(true),
-            TokenType::Bool(false),
-            TokenType::Int(-1234),
-            TokenType::Int(0),
-            TokenType::Int(1234),
-            TokenType::Long(-1234),
-            TokenType::Long(0),
-            TokenType::Long(1234),
-            TokenType::Float(-1234.0),
-            TokenType::Float(0.0),
-            TokenType::Float(1234.0),
-            TokenType::Double(-1234.0),
-            TokenType::Double(0.0),
-            TokenType::Double(1234.0),
-            TokenType::String("hello world".to_string())
+            TokenType::LitNull,
+            TokenType::LitBool(true),
+            TokenType::LitBool(false),
+            TokenType::LitI32(-1234),
+            TokenType::LitI32(0),
+            TokenType::LitI32(1234),
+            TokenType::LitI64(-1234),
+            TokenType::LitI64(0),
+            TokenType::LitI64(1234),
+            TokenType::LitF32(-1234.0),
+            TokenType::LitF32(0.0),
+            TokenType::LitF32(1234.0),
+            TokenType::LitF64(-1234.0),
+            TokenType::LitF64(0.0),
+            TokenType::LitF64(1234.0),
+            TokenType::LitStr("hello world".to_string())
         );
     }
 
@@ -402,34 +403,35 @@ mod tests {
 
     #[test]
     fn test_keywords() {
-        let mut lexer = Lexer::new("fn rec if else while for return break continue void int float double bool string struct impl let const inline use as mod pub");
+        let mut lexer = Lexer::new("fn rec if else while for return break continue void i32 i64 f32 f64 bool string struct impl let const inline use as mod pub");
 
         test_token_stream!(
             lexer,
-            TokenType::Fn,
-            TokenType::Rec,
-            TokenType::If,
-            TokenType::Else,
-            TokenType::While,
-            TokenType::For,
-            TokenType::Return,
-            TokenType::Break,
-            TokenType::Continue,
-            TokenType::VoidType,
-            TokenType::IntType,
-            TokenType::FloatType,
-            TokenType::DoubleType,
-            TokenType::BoolType,
-            TokenType::StringType,
-            TokenType::StructType,
-            TokenType::Impl,
-            TokenType::Let,
-            TokenType::Const,
-            TokenType::Inline,
-            TokenType::Use,
-            TokenType::As,
-            TokenType::Mod,
-            TokenType::Pub
+            TokenType::KwFn,
+            TokenType::KwRec,
+            TokenType::KwIf,
+            TokenType::KwElse,
+            TokenType::KwWhile,
+            TokenType::KwFor,
+            TokenType::KwReturn,
+            TokenType::KwBreak,
+            TokenType::KwContinue,
+            TokenType::KwVoid,
+            TokenType::KwI32,
+            TokenType::KwI64,
+            TokenType::KwF32,
+            TokenType::KwF64,
+            TokenType::KwBool,
+            TokenType::KwStr,
+            TokenType::KwStruct,
+            TokenType::KwImpl,
+            TokenType::KwLet,
+            TokenType::KwConst,
+            TokenType::KwInline,
+            TokenType::KwUse,
+            TokenType::KwAs,
+            TokenType::KwMod,
+            TokenType::KwPub
         );
     }
 
@@ -439,7 +441,7 @@ mod tests {
 
         test_token_stream!(
             lexer,
-            TokenType::Fn,
+            TokenType::KwFn,
             TokenType::Eof,
             TokenType::Eof,
             TokenType::Eof,
