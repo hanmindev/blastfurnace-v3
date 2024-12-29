@@ -28,3 +28,18 @@ where
         hi: BytePos(hi),
     }
 }
+
+impl Span {
+    pub fn to(&self, span: &Span) -> Self {
+        let val = Span {
+            lo: self.lo.clone(),
+            hi: span.hi.clone(),
+        };
+
+        if val.lo.0 > val.hi.0 {
+            panic!("Spans out of order");
+        }
+
+        val
+    }
+}
